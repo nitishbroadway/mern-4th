@@ -16,7 +16,7 @@ class LoginCtrl {
                             uid: user._id,
                             iat: Math.floor(Date.now() / 1000),
                             exp: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
-                        }, 'DAB544BCEF398E795D417192A6934')
+                        }, process.env.JWT_SECRET)
 
                         res.send({token})
                     } else {

@@ -1,6 +1,9 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const routes = require('./routes')
+const {config} = require('dotenv')
+
+config()
 
 const app = express()
 
@@ -17,9 +20,9 @@ app.use((error, req, res, next) => {
         })
 })
 
-app.listen(5000, async () => {
-    console.log('Server stated at http://localhost:5000')
+app.listen(process.env.API_PORT, async () => {
+    console.log(`Server stated at http://localhost:${process.env.API_PORT}`)
     console.log('Press Ctrl+C to stop')
-    await mongoose.connect('mongodb://localhost:27017/mern-vs4')
+    await mongoose.connect(process.env.MONGO_URL)
     console.log('MongoDb connected')
 })
