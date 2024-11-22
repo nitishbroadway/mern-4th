@@ -13,6 +13,7 @@ const User = model('User', new Schema({
     password: {
         type: String,
         required: true,
+        select: false,
     },
     phone: {
         type: String,
