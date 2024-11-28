@@ -1,5 +1,6 @@
 const { errorMsg, notFoundError } = require("../../lib")
 const { Article } = require("../../models")
+const { unlinkSync } = require('node:fs')
 
 class ArticlesCtrl {
     index = async (req, res, next) => {
@@ -51,12 +52,18 @@ class ArticlesCtrl {
             const article = await Article.findById(id)
 
             if (article) {
-                const { name, status } = req.body
+                const { name, content, categoryId, status } = req.body
 
-                await Article.findByIdAndUpdate(id, {name, status})
+                const image = req.file?.filename || article.image
+
+                if(req.file?.filename && article.image) {
+                    unlinkSync(`./uploads/${article.image}`)
+                }
+
+                await Article.findByIdAndUpdate(id, { name, content, categoryId, status, image })
 
                 res.send({
-                    message: 'Article, updated',
+                    message: 'Article updated',
                 })
             } else {
                 notFoundError(next, 'Article')
@@ -73,6 +80,10 @@ class ArticlesCtrl {
             const article = await Article.findById(id)
 
             if (article) {
+                if (article.image) {
+                    unlinkSync(`./uploads/${article.image}`)
+                }
+
                 await Article.findByIdAndDelete(id)
 
                 res.send({

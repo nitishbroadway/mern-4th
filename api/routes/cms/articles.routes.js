@@ -10,8 +10,8 @@ router.route('/')
 
 router.route('/:id')
     .get(Cms.ArticlesCtrl.show)
-    .put(Cms.ArticlesCtrl.update)
-    .patch(Cms.ArticlesCtrl.update)
+    .put(upload().single('image'), Cms.ArticlesCtrl.update)
+    .patch(upload().single('image'), Cms.ArticlesCtrl.update)
     .delete(Cms.ArticlesCtrl.destroy)
 
 module.exports = router
