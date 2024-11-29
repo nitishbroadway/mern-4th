@@ -9,6 +9,10 @@ const Comment = model('Comment', new Schema({
         type: String,
         required: true,
     },
+    comment: {
+        type: String,
+        required: true,
+    },
     articleId: {
         type: Schema.Types.ObjectId,
         required: true,
