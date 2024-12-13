@@ -1,11 +1,55 @@
 import "bootstrap/dist/css/bootstrap.min.css"
+import "@fortawesome/fontawesome-free/css/all.min.css"
 
-import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap"
+import { Button, Container, Nav, Navbar, NavDropdown } from "react-bootstrap"
 import { Outlet } from "react-router-dom"
+import { useDispatch, useSelector } from "react-redux"
+import { useEffect, useState } from "react"
+import http from "../http"
+import { fromStorage, removeStorage } from "../lib"
+import { Loading } from "./Loading"
+import { clearUser, setUser } from "../store/user.slice"
 
 export const CmsLayout = () => {
-    return <>
-        <Navbar expand="lg" className="bg-dark" data-bs-theme="dark">
+    const user = useSelector(state => state.user.value)
+
+    const [loading, setLoading] = useState(true)
+
+    const dispatch = useDispatch()
+
+    useEffect(() => {
+        setLoading(true)
+        if(!user) {
+            const token = fromStorage('mernvs4token')
+
+            if(token) {
+                setLoading(true)
+
+                http.get('/profile/details')
+                    .then(({ data }) => {
+                        dispatch(setUser(data))
+                    })
+                    .catch(() => {
+                        
+                    })
+                    .finally(() => setLoading(false))
+            } else {
+                setLoading(false)
+            }
+        }
+        else {
+            setLoading(false)
+        }
+    }, [user])
+
+    const handleLogout = () => {
+        removeStorage('mernvs4token')
+
+        dispatch(clearUser())
+    }
+
+    return loading ? <Loading /> : <>
+        {user && <Navbar expand="lg" className="bg-dark" data-bs-theme="dark">
             <Container>
                 <Navbar.Brand href="#home">Blog</Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -15,21 +59,15 @@ export const CmsLayout = () => {
                         <Nav.Link href="#link">Link</Nav.Link>
                     </Nav>
                     <Nav>
-                        <NavDropdown title="Dropdown" id="basic-nav-dropdown" align="end">
-                            <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
-                            <NavDropdown.Item href="#action/3.2">
-                                Another action
-                            </NavDropdown.Item>
-                            <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
-                            <NavDropdown.Divider />
-                            <NavDropdown.Item href="#action/3.4">
-                                Separated link
-                            </NavDropdown.Item>
+                        <NavDropdown title={user.name} id="basic-nav-dropdown" align="end">
+                            <Button variant="link" className="dropdown-item" onClick={handleLogout}>
+                                <i className="fa-solid fa-arrow-right-from-bracket me-2"></i>Logout
+                            </Button>
                         </NavDropdown>
                     </Nav>
                 </Navbar.Collapse>
             </Container>
-        </Navbar>
+        </Navbar>}
         <Container>
             <Outlet />
         </Container>
